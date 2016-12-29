@@ -30,3 +30,39 @@ There are several cities that comes under Delhi-NCR region.
 All city names are written differently by different users, they need to be synchronised. Like,
 delhi, DELHI, delhi. all need to be written as Delhi,
 noida, NOIDA all need to be written as Noida.
+
+mapping = {
+    "Rd" : "Road",
+    "delhi":"Delhi",
+    "Delhi.":"Delhi",
+    "delhi": "Delhi",
+    "noida":"Noida",
+    "Noida," : "Noida",
+    "NOIDA" : "Noida",
+    "NAGAR" : "Nagar",
+    "nagar" : "Nagar",
+    "Bazar" : "Bazaar",
+    "no" : "No",
+    "south" : "South",
+    "city" : "City",
+    "11'" : "11",
+    "sec" : "Sector",
+    "Sec" : "Sector",
+    "extn" : "Extension",
+    "sector":"Sector",
+    "UP)" : "UP",
+    "Rohini,Delhi" : "Rohini",
+    "Pritampura" : "Pitampura"
+}
+
+split_name = name.split(" ")
+    new_name = []
+    for split in split_name:
+        if split in mapping:
+            new_name.append(mapping[split])
+        else:
+            new_name.append(split)
+            
+    name = " ".join(new_name)
+    
+return name
