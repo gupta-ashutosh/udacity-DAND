@@ -16,12 +16,12 @@ This is the dataset of Delhi-NCR.
 
 ##Identifying Problem##
 
-My datset new-delhi_india.osm is of size 746.7MB in size, i took out a sample datset sample.osm, from the main dataset using the small_OSM_generator.py script.
+My datset new-delhi_india.osm is of size 746.7MB in size, i took out a sample datset sample.osm, from the main dataset using the [small_OSM_generator.py](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/small_OSM_generator.py) script.
 The sample.osm is 251.7MB.
 
 The way I perform the analysis task was :
 1. Load the sample.osm data into python IDE rodeo by [yhat(newly launched)](https://www.yhat.com/products/rodeo) and analysed data manually.
-2. Use the audit_streetname.py scipt to view the not so correct streetname. Also modified the aidit_streetname file such that small mistakes are corrected by audit file only(detailed of correction shared below).
+2. Use the [audit_streetname.py](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/audit_streetname.py) scipt to view the not so correct streetname. Also modified the aidit_streetname file such that small mistakes are corrected by audit file only(detailed of correction shared below).
 
 ##Issued found during analysis of dataset##
 
