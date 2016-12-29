@@ -25,7 +25,7 @@ The way I perform the analysis task was :
 
 ##Issued found during analysis of dataset##
 
-###varying use of State name :###
+###Varying use of State and City names :###
 There are several cities that comes under Delhi-NCR region.
 All city names are written differently by different users, they need to be synchronised. Like,
 delhi, DELHI, delhi. all need to be written as Delhi,
