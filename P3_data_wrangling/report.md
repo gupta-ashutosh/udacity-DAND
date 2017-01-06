@@ -516,7 +516,7 @@ SELECT * FROM nodes_tags WHERE key LIKE "%post%";
 We can see that correction are updated.
 
 Further exploration in the postcode gives some more unexpected errors, 
-like : one of the postcode was only 3 digit "2242", and it was repeated at several places.
+like : one of the postcode was only 4 digit "2242", and it was repeated at several places.
 
 ```
 735999858,postcode,122001,addr
