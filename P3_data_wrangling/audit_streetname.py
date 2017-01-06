@@ -2,42 +2,31 @@ import xml.etree.cElementTree as ET
 import pprint
 from collections import defaultdict
 
-# OSMFILE = 'sample.osm'
-OSMFILE = 'new-delhi_india.osm'
+
+OSMFILE = 'sample.osm'
+# OSMFILE = 'new-delhi_india.osm'
 
 street_type_re = re.compile(r'\b\S+\.?$', re.IGNORECASE)
 expected = ["Street", "Avenue", "Boulevard", "Drive", "Court", "Place", "Square", 
             "Lane", "Road", "Trail", "Parkway", "Commons", "College", "School", 
             "University","Delhi", "Enclave", "footpath","Marg", "nagar", "Chowk", "Bagh",
             "Complex", "Estate", "Expressway", "Flyover", "Ghaziabad", "road", "Vihar",
-            "gurgaon", "hotel", "garden","colony", "Nagar", "Lok", "Market", "Sector"]
+            "gurgaon", "hotel", "garden","colony", "Nagar", "Lok", "Market"]
 
 lower = re.compile(r'^([a-z]|_)*$')
 lower_colon = re.compile(r'^([a-z]|_)*:([a-z]|_)*$')
 problemchars = re.compile(r'[=\+/&<>;\'"\?%#$@\,\. \t\r\n]')
 
+sectorpattern = re.compile(r'\s*(Sector|Sec)\s*', re.IGNORECASE)
 
-sectorpattern = re.compile(r'\s*(Sector)\s*(-)\s*', re.IGNORECASE)
-sectorsubpattern1 = re.compile(r'(Sector-)\w*', re.IGNORECASE)
-sectorsubpattern2 = re.compile(r'(Sector)\s(-)\w*', re.IGNORECASE)
-sectorsubpattern3 = re.compile(r'(Sector)\s(-)\s\w*', re.IGNORECASE)
-sectorsubpattern4 = re.compile(r'(Sector-)\s\w*', re.IGNORECASE)
-sectorsubpattern5 = re.compile(r'(Sector)\s(-)\w*$', re.IGNORECASE)
-
+numberPattern = re.compile( r'No(\.)?\s*[0-9]{1,2}\s*$' ,re.IGNORECASE)
 
 mapping = {
     "Rd" : "Road",
+    "up" :"UP",
     "delhi":"Delhi",
     "Delhi.":"Delhi",
     "delhi": "Delhi",
-    "11'" : "11",
-    "sec" : "Sector",
-    "Sec" : "Sector",
-    "extn" : "Extension",
-    "sector":"Sector",
-    "UP)" : "UP",
-    "Rohini,Delhi" : "Rohini",
-    "Pritampura" : "Pitampura",
     "noida":"Noida",
     "Noida," : "Noida",
     "NOIDA" : "Noida",
@@ -45,8 +34,27 @@ mapping = {
     "nagar" : "Nagar",
     "Bazar" : "Bazaar",
     "no" : "No",
+    "number" : "No.",
     "south" : "South",
     "city" : "City",
+    "11'" : "11",
+    "sec" : "Sector",
+    "Sec" : "Sector",
+    "sector":"Sector",
+    "SECTOR":"Sector",
+    "UP)" : "UP",
+    "Rohini,Delhi" : "Rohini",
+    "Pritampura" : "Pitampura",
+    "extn" : "Extension",
+    "i.p.extension" : "I.P. Extension",
+    "I. P. Extension" : "I.P. Extension",
+    "Extn" : "Extension",
+    "street" : "Street",
+    "Mg" : "Marg",
+    "Pahargan" : "Pahar Ganj",
+    "gali" : "Gali",
+    "lothian" : "Lothian",
+    "bangali" : "Bangali"
 }
 
 
@@ -94,18 +102,8 @@ def process_map(filename):
     
     
 def update_name(name, mapping):
-    if re.search(sectorpattern, name):
-        if re.search(sectorsubpattern1, name):
-            name = name.replace("Sector-", "Sector ")
-        elif re.search(sectorsubpattern2, name):
-            name = name.replace("Sector -", "Sector ")
-        elif re.search(sectorsubpattern3, name):
-            name = name.replace("Sector - ", "Sector ")
-        elif re.search(sectorsubpattern5, name):
-            name = name.replace("Sector -", "Sector ")
-        else:
-            name = name.replace("Sector- ", "Sector ")
-            
+    
+    ## updating names based in mapping that we have created above
     split_name = name.split(" ")
     new_name = []
     for split in split_name:
@@ -113,21 +111,41 @@ def update_name(name, mapping):
             new_name.append(mapping[split])
         else:
             new_name.append(split)
-            
     name = " ".join(new_name)
+    
+    
+    #updating names with pattern "No.<number>", wanted like this "No.<space><number>"
+    if re.search(numberPattern, name):
+        name = re.sub(r'No\.*\s*([0-9]{1,2})\s*$', r'No. \1', name, flags = re.I)
+    
+    
+    #ASCII character problem Sector - 39
+    name = re.sub(unichr(8211), "-", name)
+    name = name.encode('ascii','ignore')
+    
+    #updating sector names, wanted results in the form "Sector<space><number>"
+    if re.search(sectorpattern, name):
+        name = name.lower().title()
+        if "-" in name:
+            name = re.sub('-',' ',name)
+            name = re.sub(' +',' ',name)
+        else:
+            name = re.sub("Sector|sec", "Sector ", name, flags=re.I)
+        
+    ##special case, handling separatly    
+    matches = re.findall("Sector", name, re.DOTALL)
+    if len(matches) == 3 and ("Sector 4 Noida" in name or "Sector 4, Noida," in name):
+        name = "C - 99, Sector 4, Block C, Noida"
+            
     
     return name
     
 def main():
-    # print "printing "
-    # process_map(OSMFILE)
-    
     print "printing street names : "
     st_types = audit(OSMFILE)
     for st_type, ways in st_types.iteritems():
         for name in ways:
             better_name = update_name(name, mapping)
             print name, " => ", better_name
-    
 if __name__ == "__main__":
     main()

@@ -1,0 +1,58 @@
+process to create new DataBase in Sqlite3
+
+
+1. Create DB : 
+	sqlite3 delhi_ncr_osm.db
+2. Create the tables : 
+CREATE TABLE nodes (
+    id INT PRIMARY KEY NOT NULL,
+    lat REAL,
+    lon REAL,
+    user TEXT,
+    uid INT,
+    version TEXT,
+    changeset INT,
+    timestamp TEXT
+);
+
+CREATE TABLE nodes_tags (
+    id INT,
+    key TEXT,
+    value TEXT,
+    type TEXT,
+    FOREIGN KEY (id) REFERENCES nodes(id)
+);
+
+CREATE TABLE ways (
+    id INT PRIMARY KEY NOT NULL,
+    user TEXT,
+    uid INTEGER,
+    version TEXT,
+    changeset INTEGER,
+    timestamp TEXT
+);
+
+CREATE TABLE ways_tags (
+    id INTEGER NOT NULL,
+    key TEXT NOT NULL,
+    value TEXT NOT NULL,
+    type TEXT,
+    FOREIGN KEY (id) REFERENCES ways(id)
+);
+
+CREATE TABLE ways_nodes (
+    id INTEGER NOT NULL,
+    node_id INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    FOREIGN KEY (id) REFERENCES ways(id),
+    FOREIGN KEY (node_id) REFERENCES nodes(id)
+);
+
+3. import the CSV data into the database tables:
+> .mode csv
+> .import nodes.csv nodes
+
+Repeat above step for all the tables
+This will import all the csv file data into sqlite3 db.
+
+
