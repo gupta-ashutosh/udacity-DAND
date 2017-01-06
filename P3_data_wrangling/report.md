@@ -432,6 +432,11 @@ IndusInd,1
 After removing the limit 5 condition, we can see that bank names are written in many ways thats 
 why we were getting very less count. This is one improvement that this OSM data required.
 All the bank names need to be same.
+Such improvements can be done during auditing phase when we are progrmatically reading the OSM file,
+and it can be done when data already exported to database.
+
+
+
 
 
 ###Wheelchair accessibilities:
@@ -615,6 +620,8 @@ Dharuhera,45000
 "Industrial Modern Township Manesar",2000
 "Safeda Basti",3000
 ```
+We can see that the populations are not correct.
+
 
 ##Conslusion
 Delhi-NCR OSM data is a big data, since so many users have contributed to it and are still contributing,
@@ -627,7 +634,8 @@ I learned a great about OSM data, its structure and what is the relation between
 Also I learned how to go about auditing your data and convert it into database tables.
 
 And lastly I learned what kind of problems are faced by programmers who work with real life data like OSM data,
-which is generated and entered by real users.
+which is generated and entered by real users. Now onwards I would also like to contribute to OSM and 
+any such open source data.
 
 
 
