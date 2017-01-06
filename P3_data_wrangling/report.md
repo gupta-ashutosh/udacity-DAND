@@ -135,7 +135,7 @@ name = name.encode('ascii','ignore')
 ```
 
 ## Parsing OSM and converting to CSV
-After handling few issues, I started converting OSM data file into CSV files using a [script]().
+After handling few issues, I started converting OSM data file into CSV files using a [script](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/write_data.py).
 Below is the main converting function used in the script : 
 
 ```python
