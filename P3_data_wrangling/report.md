@@ -7,8 +7,8 @@
 ##Area Selected##
 
 I have selected area of [Delhi-NCR (national capital region), Delhi, India](https://en.wikipedia.org/wiki/National_Capital_Region_(India)) , where I live. I have choosen this area because of mainly 2 reasons, 
-1. I Know this area as I live here, so it will be easier for me to see the issues in street names, road names etc.
-2. Wanted to explore more about the area, in terms of numbers.
+* I Know this area as I live here, so it will be easier for me to see the issues in street names, road names etc.
+* Wanted to explore more about the area, in terms of numbers.
 
 [Dataset](https://mapzen.com/data/metro-extracts/metro/new-delhi_india/).
 This is the dataset of Delhi-NCR.
@@ -20,8 +20,8 @@ My datset new-delhi_india.osm is of size 746.7MB in size, I took out a sample da
 The sample.osm is ~75MB in size.
 
 The way I perform the analysis task was :
-1. Load the sample.osm data into python IDE rodeo by [yhat(newly launched)](https://www.yhat.com/products/rodeo) and analysed data manually line by line.
-2. Use the [audit_streetname.py](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/audit_streetname.py) scipt to view the not so correct streetname. Also modified the aidit_streetname file such that small mistakes are corrected by audit file only(detailed of correction shared below).
+* Load the sample.osm data into python IDE rodeo by [yhat(newly launched)](https://www.yhat.com/products/rodeo) and analysed data manually line by line.
+* Use the [audit_streetname.py](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/audit_streetname.py) scipt to view the not so correct streetname. Also modified the aidit_streetname file such that small mistakes are corrected by audit file only(detailed of correction shared below).
 
 ## Issued found during analysis of dataset##
 
