@@ -135,7 +135,7 @@ name = name.encode('ascii','ignore')
 ```
 
 ## Parsing OSM and converting to CSV
-After handling few issues, I started converting OSM data file into CSV files using a [script]().
+After handling few issues, I started converting OSM data file into CSV files using a [script](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/write_data.py).
 Below is the main converting function used in the script : 
 
 ```python
@@ -239,13 +239,13 @@ Below is the main converting function used in the script :
         return {'way': way_attribs, 'way_nodes': way_nodes, 'way_tags': tags}
 
 ```
-The full code with file is uploaded also.
+The full code with [file](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/write_data.py) is uploaded also.
 
 ##Exporting to Sqlite3 Database
 After converting the OSM data to csv files, I have created a database, "new_delhi_ncr.db", and created 5 tables.
 
 Followed by importing the csv file into required tables.
-Exact steps are provided in [DB_instructions.txt]() file.
+Exact steps are provided in [DB_instructions.txt](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/db_steps.txt) file.
 Code for exporting csv data to Sqlite3 database
 ```sql
 >.mode csv
@@ -355,14 +355,18 @@ group by nt.value
 order by count(*) desc
 LIMIT 5;
 ```
+
+```
 "ICICI Bank",15
 "HDFC Bank",14
 "State Bank of India",13
 "Punjab National Bank",9
 "Axis Bank",6
+```
 
 The data above displayed the banks and their branch counts, but this seems very odd that the most popular bank has only 15 branches.
 To explore more I removed the Limit 5 condition,
+
 ```sql
 select nt.value, count(*) from nodes_tags nt join
 (select id,key,value from nodes_tags where value="bank") temp
@@ -371,6 +375,7 @@ where nt.key="name"
 group by nt.value 
 order by count(*) desc
 ```
+
 ```
 "ICICI Bank",15
 "HDFC Bank",14
