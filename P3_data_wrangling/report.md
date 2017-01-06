@@ -239,7 +239,7 @@ Below is the main converting function used in the script :
         return {'way': way_attribs, 'way_nodes': way_nodes, 'way_tags': tags}
 
 ```
-The full code with file is uploaded also.
+The [full code](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/write_data.py) with file is uploaded also.
 
 ##Exporting to Sqlite3 Database
 After converting the OSM data to csv files, I have created a database, "new_delhi_ncr.db", and created 5 tables.
