@@ -355,14 +355,18 @@ group by nt.value
 order by count(*) desc
 LIMIT 5;
 ```
+
+```
 "ICICI Bank",15
 "HDFC Bank",14
 "State Bank of India",13
 "Punjab National Bank",9
 "Axis Bank",6
+```
 
 The data above displayed the banks and their branch counts, but this seems very odd that the most popular bank has only 15 branches.
 To explore more I removed the Limit 5 condition,
+
 ```sql
 select nt.value, count(*) from nodes_tags nt join
 (select id,key,value from nodes_tags where value="bank") temp
@@ -371,6 +375,7 @@ where nt.key="name"
 group by nt.value 
 order by count(*) desc
 ```
+
 ```
 "ICICI Bank",15
 "HDFC Bank",14
