@@ -254,11 +254,11 @@ Code for exporting csv data to Sqlite3 database
 
 ##DataBase details : 
 After importing into Sqlite3, 5 tables were created:
-1. nodes -- 3386572 rows
-2. nodes_tags -- 38577 rows
-3. ways -- 690993 rows
-4. ways_tags -- 753356 rows
-5. ways_nodes -- 4191145 rows
+* nodes -- 3386572 rows
+* nodes_tags -- 38577 rows
+* ways -- 690993 rows
+* ways_tags -- 753356 rows
+* ways_nodes -- 4191145 rows
 
 query to get the row count :
 ```sql
@@ -355,11 +355,13 @@ group by nt.value
 order by count(*) desc
 LIMIT 5;
 ```
+```
 "ICICI Bank",15
 "HDFC Bank",14
 "State Bank of India",13
 "Punjab National Bank",9
 "Axis Bank",6
+```
 
 The data above displayed the banks and their branch counts, but this seems very odd that the most popular bank has only 15 branches.
 To explore more I removed the Limit 5 condition,
