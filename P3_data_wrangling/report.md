@@ -2,7 +2,7 @@
 
 **Author - Ashutosh Gupta**
 
-**Date - 25th Dec, 2016**
+**Date - 31st Jan, 2017**
 
 ##Area Selected##
 
@@ -43,14 +43,6 @@ _Bazaar_ exists, like Bazar or Bzar I want to keep this as _Bazaar_.
     "noida":"Noida",
     "Noida," : "Noida",
     "NOIDA" : "Noida",
-    "NAGAR" : "Nagar",
-    "nagar" : "Nagar",
-    "Bazar" : "Bazaar",
-    "Rohini,Delhi" : "Rohini",
-    "Pritampura" : "Pitampura",
-    "south" : "South",
-    "city" : "City",
-    
 ...
 
 split_name = name.split(" ")
@@ -134,118 +126,84 @@ name = re.sub(unichr(8211), "-", name)
 name = name.encode('ascii','ignore')
 ```
 
-## Parsing OSM and converting to CSV
-After handling few issues, I started converting OSM data file into CSV files using a [script]().
-Below is the main converting function used in the script : 
+#### problem with postcode
+There were problems with postcodes as well, In India we have 6 digit postcodes, without any space or gap between any of the digits, some of postcodes were having space between digits,
+ex : 110 067 and 110 021, they need to be put like this, 
+110 067  =>  110067
+110 021  =>  110021
+
+below code is used to correct the defect above
 
 ```python
-    NODES_PATH = "nodes.csv"
-    NODE_TAGS_PATH = "nodes_tags.csv"
-    WAYS_PATH = "ways.csv"
-    WAY_NODES_PATH = "ways_nodes.csv"
-    WAY_TAGS_PATH = "ways_tags.csv"
+postcode = re.sub(r'(\d+)\s+(?=\d)', r'\1', postcode)
+```
 
-    # Make sure the fields order in the csvs matches the column order in the sql table schema
-    NODE_FIELDS = ['id', 'lat', 'lon', 'user', 'uid', 'version', 'changeset', 'timestamp']
-    NODE_TAGS_FIELDS = ['id', 'key', 'value', 'type']
-    WAY_FIELDS = ['id', 'user', 'uid', 'version', 'changeset', 'timestamp']
-    WAY_TAGS_FIELDS = ['id', 'key', 'value', 'type']
-    WAY_NODES_FIELDS = ['id', 'node_id', 'position']
+There were some postcode that were not of 6 digit length, like :
+2242, 10089
 
-    if element.tag == 'node':
-        idd = element.attrib['id']
-        lat = element.attrib['lat']
-        lon = element.attrib['lon']
-        user = element.attrib['user']
-        uid = element.attrib['uid']
-        version = element.attrib['version']
-        changeset = element.attrib['changeset']
-        timestamp = element.attrib['timestamp']
-    
-        node_attribs["id"] = idd
-        node_attribs["lat"] = lat
-        node_attribs["lon"] = lon
-        node_attribs["user"] = user
-        node_attribs["uid"] = uid
-        node_attribs["version"] = version
-        node_attribs["changeset"] = changeset
-        node_attribs["timestamp"] = timestamp
-        
-        for tag in element.iter("tag"):
-            node_tags = {}
-            value = tag.attrib["v"]
-            if re.search(PROBLEMCHARS, tag.attrib["k"]):
-                continue
-            
-            key_split = tag.attrib["k"].split(":")
-            if len(key_split) == 1:
-                key = tag.attrib["k"]
-                type_t = default_tag_type
-            else:
-                type_t = key_split[0]
-                del key_split[0]
-                key = ":".join(key_split)
-                # key = key_split
-                
-            node_tags['id'] = idd
-            node_tags['key'] = key
-            node_tags['value'] = value
-            node_tags['type'] = type_t
-            
-            tags.append(node_tags)
-        
-        return {'node': node_attribs, 'node_tags': tags}
-    elif element.tag == 'way':
-        idd = element.attrib["id"]
-        way_attribs["id"] = idd
-        way_attribs["user"] = element.attrib["user"]
-        way_attribs["uid"] = element.attrib["uid"]
-        way_attribs["version"] = element.attrib["version"]
-        way_attribs["changeset"] = element.attrib["changeset"]
-        way_attribs["timestamp"] = element.attrib["timestamp"]
-        
-        for tag in element.iter("tag"):
-            way_tags = {}
-            value = tag.attrib["v"]
-            if re.search(PROBLEMCHARS, tag.attrib["k"]):
-                continue
-            
-            key_split = tag.attrib["k"].split(":")
-            if len(key_split) == 1:
-                key = tag.attrib["k"]
-                type_t = default_tag_type
-            else:
-                type_t = key_split[0]
-                del key_split[0]
-                key = ":".join(key_split)
-                
-            way_tags['id'] = idd
-            way_tags['key'] = key
-            way_tags['value'] = value
-            way_tags['type'] = type_t
-            
-            tags.append(way_tags)
-        
-        nd_index = 0
-        for nd in element.iter("nd"):
-            way_nd = {}
-            way_nd['id'] = idd
-            way_nd['node_id'] = nd.attrib['ref']
-            way_nd['position'] = nd_index 
-            nd_index += 1
-            
-            way_nodes.append(way_nd)
-            
-        return {'way': way_attribs, 'way_nodes': way_nodes, 'way_tags': tags}
+To correct them I need to scan through the OSM file and look for this postcode's street and other details and based on these details have to figure out the correct postcode.
 
 ```
-The [full code](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/write_data.py) with file is uploaded also.
+<tag k="addr:street" v="Palam Vihar" />
+<tag k="addr:country" v="IN" />
+<tag k="addr:postcode" v="122001" />
+<tag k="addr:housenumber" v="2445" />
+
+<tag k="addr:street" v="Palam Vihar" />
+<tag k="addr:country" v="IN" />
+<tag k="addr:postcode" v="2242" />
+<tag k="addr:housenumber" v="2409" />
+```
+As we can see in the example above the postcode "2242" might be written as housenumber.
+We can see the correct postcode is "122001"
+
+```
+2242  =>  122001
+```
+
+Similarly other such postcodes were corrected, 
+``` 10089  =>  110085```
+
+There were one postcode which was having one extra character 'v' attached in the end
+110031v, they should have been changed to:
+``` 110031v  =>  110031 ```
+
+
+
+
+## Parsing OSM and converting to CSV
+After Identifying issues and there solutions above, it was time to convert the corrected OSM data into CSV file.
+
+During convertion from OSM to CSV I have made the above mentioned corrections and then saved the data into CSV file for further exploration.
+
+audit_streetname.py is the python script which contains the auditing and correction functions and write_data.py is the script which contains the writing to CSV file code, I have imported the audit_streetname into write_data and used its audit and cleaning function and then saved the OSM data into CSV data.
+
+Below is the few line of code snippet
+
+```python
+import audit_streetname as audit
+for tag in element.iter("tag"):
+  node_tags = {}
+  tag_key = tag.attrib["k"]
+  value = tag.attrib["v"]
+  ...
+  
+  if audit.is_street_name(tag):
+    value = audit.update_name(value, audit.getStreetMapping())
+           
+  if audit.is_postal(tag):
+    value = audit.update_postcode(value, audit.getPostCodeMapping())
+  ...  
+```
+
 
 ##Exporting to Sqlite3 Database
-After converting the OSM data to csv files, I have created a database, "new_delhi_ncr.db", and created 5 tables.
+After converting the OSM data to csv files, I have created a database, "newdelhi_ncr_osm.db".
 
-Followed by importing the csv file into required tables.
-Exact steps are provided in [DB_instructions.txt]() file.
+I have written a python script to directly connect to this databse and create 5 required tables and import the CSV files into required tables. "create_tables_sqlite3.py" is the name of the script which will do all the task.
+
+Also this can be done through manual coding also.
+Exact steps are provided in "DB_instructions.txt" file.
 Code for exporting csv data to Sqlite3 database
 ```sql
 >.mode csv
@@ -386,48 +344,6 @@ HSBC,3
 "Deutsche Bank",2
 ICICI,2
 "Indian bank",2
-"State Bank Of India",2
-"Union Bank of India",2
-"Vijaya Bank",2
-"ABN Amro",1
-"AXIS Bank",1
-"Andhra Bank",1
-Axis,1
-"Bank Of Baroda",1
-"Bank Of India",1
-"Bank of Baroda",1
-"Bank of Baroda, Mayur Vihar Phase 3",1
-"Bank of Maharashtra, Mayur Vihar Phase 3",1
-"Barclays Bank",1
-"CITI Bank",1
-"Canara Bank, Bhagwan Das Road",1
-"Canara Bank, Patparganj Branch",1
-"Canara bank",1
-"Central Bank of India",1
-"Central bank of india",1
-Citibank,1
-"DCB Bank",1
-"Federal Bank",1
-"HDFC Bank & ATM",1
-"HDFC Bank ATM",1
-"HDFC Bank and ATM",1
-"HDFC Bank atm",1
-"HDFC Bank, Bilaspur",1
-"HDFC bank",1
-"Hdfc bank",1
-"ICICI Bank Ltd",1
-"ICICI, SBI, Citibank,",1
-ICICI-alaknanda,1
-"IDBI Bank",1
-"Indian Bank",1
-"Indian Overseas Bank",1
-IndusInd,1
-"IndusInd Bank",1
-"Kotak Bank",1
-"Kotak Mahindra Bank",1
-"Lord Krishna Bank",1
-"OBC Bank",1
-"Okhla Industrial Estate, Phase 3 Branch",1
 ...
 
 ```
@@ -436,8 +352,6 @@ why we were getting very less count. This is one improvement that this OSM data 
 All the bank names need to be same.
 Such improvements can be done during auditing phase when we are progrmatically reading the OSM file,
 and it can be done when data already exported to database.
-
-
 
 
 
@@ -457,9 +371,17 @@ select count(*) from nodes_tags where key="wheelchair" AND value="yes";
 ```
 We can see that wheelchairs are available around 0.14% which seems very low, there are 2 sides of
 it,
-1. More wheel chairs are required at pblic places like, supermarkets, shops, metros, hospitals etc.
+1. More wheel chairs are required at public places like, supermarkets, shops, metros, hospitals etc.
 2. More wheelchairs are available but no one has made that enrty in the data, thats why we are getting
     the low count
+    
+The benefit of availing this would be that differently abled people won't face problem in dealing at public places. 
+Since there are not enough services available for them, they are not coming to these places or we can say they are dependent on other people for their work, if we provide more such services, such people can also become self sufficient and can do some amount of their own work by themselves.
+
+The challenges availing these services are that:
+1. one need to know exact amount of differently-abled or elderly people in all the areas and accordingly provide services.
+2. Also for availing these services all the hospitals, banks, shopping complexes etc need extra staff.
+3. Government and other NGO's have to take responsibility for providing funds. 
 
 ###Postal Codes
 ```sql
@@ -515,54 +437,6 @@ SELECT * FROM nodes_tags WHERE key LIKE "%post%";
 ```
 We can see that correction are updated.
 
-Further exploration in the postcode gives some more unexpected errors, 
-like : one of the postcode was only 4 digit "2242", and it was repeated at several places.
-
-```
-735999858,postcode,122001,addr
-735999859,postcode,2242,addr
-735999861,postcode,122001,addr
-735999862,postcode,2242,addr
-735999863,postcode,122001,addr
-735999864,postcode,122001,addr
-735999866,postcode,2242,addr
-735999867,postcode,122001,addr
-...
-```
-By using the id of one of the row with postcode = 2242
-
-```sql
-SELECT * FROM nodes_tags WHERE id = 735999866;
-```
-The result was : 
-```
-735999866,city,Gurgaon,addr
-735999866,street,"Palam Vihar",addr
-735999866,country,IN,addr
-735999866,postcode,2242,addr
-735999866,housenumber,2486,addr
-```
-So postcode should remain same for same street, like for street "Palam Vihar", postcode would be same.
-
-
-```sql
-select * from nodes_tags where id in
-(select id from nodes_tags where key = "street" and value = "Palam Vihar") 
-AND key = "postcode";
-```
-```
-734837126,postcode,122001,addr
-734837127,postcode,122001,addr
-734837873,postcode,122001,addr
-734837875,postcode,122001,addr
-734837877,postcode,122001,addr
-```
-Using above query I found the real postcode value for Palam Vihar, which was 122001
-
-```sql
-UPDATE nodes_tags SET VALUE = "122001" WHERE key = "postcode" AND value = "2242";
-```
-Above query will update the required postcode.
 
 
 ##Additional Ideas/Information:
@@ -610,31 +484,16 @@ Bahadurgarh,5000
 Muradnagar,5000
 Sohna,5000
 Kharkhauda,1000
-Pataudi,1000
-Baghpat,5000
-Bhiwadi,104800
-Ghaziabad,500000
-Delhi,11008000
-Kharkhoda,18758
-"Sector B, Pocket 7",750
-"Bilaspur Chowk",2000
-Dharuhera,45000
-"Industrial Modern Township Manesar",2000
-"Safeda Basti",3000
 ```
-We can see that the populations are not correct.
+We can see that the populations are not correct. And the people entering these informtion might not have the exact number or they have entered it by mistake.
 
 
 ##Conslusion
-Delhi-NCR OSM data is a big data, since so many users have contributed to it and are still contributing,
-it has become messy. Messy in terms of keeping consistency in names of amenities, names of 
-streets and etc. Same thing enetered by different users will have different version, which we need to handle
-programatically. But the data is very useful and clean enough for our exploration purpose, and even after I
-live in this area I learned so many new things about my locality.
+Delhi-NCR OSM data is a big data, since so many users have contributed to it and are still contributing, it has become messy. Messy in terms of keeping consistency in names of amenities, names of streets and etc. 
+Same thing enetered by different users will have different version, which we need to handle
+programatically. But the data is very useful and clean enough for our exploration purpose, and even after I live in this area I learned so many new things about my locality.
 
 I learned a great about OSM data, its structure and what is the relation between nodes, ways, and tags.
 Also I learned how to go about auditing your data and convert it into database tables.
 
-And lastly I learned what kind of problems are faced by programmers who work with real life data like OSM data,
-which is generated and entered by real users. Now onwards I would also like to contribute to OSM and 
-any such open source data.
+And lastly I learned what kind of problems are faced by programmers who work with real life data like OSM data, which is generated and entered by real users. Now onwards I would also like to contribute to OSM and any such open source data.

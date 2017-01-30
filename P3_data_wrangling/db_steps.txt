@@ -3,6 +3,11 @@ process to create new DataBase in Sqlite3
 
 1. Create DB : 
 	sqlite3 delhi_ncr_osm.db
+
+2. There is a python script “create_tables_sqlite3.python”, execute the script to create the tables and import the cvs files into tables directly.
+
+or use below process, which is more manual, and might take more time
+
 2. Create the tables : 
 CREATE TABLE nodes (
     id INT PRIMARY KEY NOT NULL,

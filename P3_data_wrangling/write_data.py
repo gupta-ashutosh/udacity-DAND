@@ -1,19 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+from sys import exit
 import csv
 import codecs
 import pprint
 import re
 import xml.etree.cElementTree as ET
-import cerberus
+import pprint
+from collections import defaultdict
 import schema
 
-# OSM_PATH = "example.osm"
-#OSM_PATH = "sample.osm"
+""" importing audit_streetname script for auditing data before saving to CSV"""
+import audit_streetname as audit
+
+
+# OSM_PATH = "sample.osm"
 OSM_PATH = "new-delhi_india.osm"
 
+""" names of the csb files to be created"""
 NODES_PATH = "nodes.csv"
 NODE_TAGS_PATH = "nodes_tags.csv"
 WAYS_PATH = "ways.csv"
@@ -25,7 +30,7 @@ PROBLEMCHARS = re.compile(r'[=\+/&<>;\'"\?%#$@\,\. \t\r\n]')
 
 SCHEMA = schema.schema
 
-# Make sure the fields order in the csvs matches the column order in the sql table schema
+"""CSV file headers and column names for SQL tables, order in CSV and table need to be same"""
 NODE_FIELDS = ['id', 'lat', 'lon', 'user', 'uid', 'version', 'changeset', 'timestamp']
 NODE_TAGS_FIELDS = ['id', 'key', 'value', 'type']
 WAY_FIELDS = ['id', 'user', 'uid', 'version', 'changeset', 'timestamp']
@@ -35,16 +40,24 @@ WAY_NODES_FIELDS = ['id', 'node_id', 'position']
 
 def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIELDS,
                   problem_chars=PROBLEMCHARS, default_tag_type='regular'):
-    """Clean and shape node or way XML element to Python dict"""
+    """ function to prepare data for different CSV's, also auditing Streetname and postcode and correcting them before saving it to CSV
+
+    argument:
+    element -- every node or way tag is an element here, passed one by one
+    node_attr_fields -- list for nodes attributes
+    way_attr_fields --  list for ways attributes
+    problem_chars -- regex for finding problem characters
+    default_tag_type -- default tag type
+
+    return -- returns a dictionary, with nodes and nodes_tags or ways, ways_tags and ways_nodes
+    """
 
     node_attribs = {}
     way_attribs = {}
     way_nodes = []
     tags = []  # Handle secondary tags the same way for both node and way elements
 
-    # YOUR CODE HERE
     if element.tag == 'node':
-        
         idd = element.attrib['id']
         lat = element.attrib['lat']
         lon = element.attrib['lon']
@@ -65,10 +78,18 @@ def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIE
         
         for tag in element.iter("tag"):
             node_tags = {}
+            tag_key = tag.attrib["k"]
             value = tag.attrib["v"]
-            if re.search(PROBLEMCHARS, tag.attrib["k"]):
+            if re.search(PROBLEMCHARS, tag_key):
                 continue
-            
+
+            if audit.is_street_name(tag):
+                value = audit.update_name(value, audit.getStreetMapping())
+           
+            if audit.is_postal(tag):
+                value = audit.update_postcode(value, audit.getPostCodeMapping())
+                
+
             key_split = tag.attrib["k"].split(":")
             if len(key_split) == 1:
                 key = tag.attrib["k"]
@@ -102,6 +123,13 @@ def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIE
             if re.search(PROBLEMCHARS, tag.attrib["k"]):
                 continue
             
+            if audit.is_street_name(tag):
+                value = audit.update_name(value, audit.getStreetMapping())
+           
+            if audit.is_postal(tag):
+                value = audit.update_postcode(value, audit.getPostCodeMapping())
+
+
             key_split = tag.attrib["k"].split(":")
             if len(key_split) == 1:
                 key = tag.attrib["k"]
@@ -131,7 +159,13 @@ def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIE
         return {'way': way_attribs, 'way_nodes': way_nodes, 'way_tags': tags}
 
 def get_element(osm_file, tags=('node', 'way', 'relation')):
-    """Yield element if it is the right type of tag"""
+    """find element if it is the right type of tag, parse the dom structure of OSM file and scan for nodes and ways
+
+    argument:
+    osm_file -- file path of osm_file to be parsed
+    tags -- tags are to be searched, node, way, relation
+
+    """
 
     context = ET.iterparse(osm_file, events=('start', 'end'))
     _, root = next(context)
@@ -165,7 +199,12 @@ class UnicodeDictWriter(csv.DictWriter, object):
 
 
 def process_map(file_in, validate):
-    """Iteratively process each XML element and write to csv(s)"""
+    """Iteratively process each XML element and write to csv(s), main function from where script starts
+
+    arguments:
+    file_in : input OSM file
+    validate : validation rules
+    """
 
     with codecs.open(NODES_PATH, 'w') as nodes_file, \
          codecs.open(NODE_TAGS_PATH, 'w') as nodes_tags_file, \
@@ -185,14 +224,11 @@ def process_map(file_in, validate):
         way_nodes_writer.writeheader()
         way_tags_writer.writeheader()
 
-        validator = cerberus.Validator()
-
         for element in get_element(file_in, tags=('node', 'way')):
             el = shape_element(element)
             if el:
-                if validate is True:
-                    validate_element(el, validator)
-
+                # if validate is True:
+                #     validate_element(el, validator)
                 if element.tag == 'node':
                     nodes_writer.writerow(el['node'])
                     node_tags_writer.writerows(el['node_tags'])
@@ -200,7 +236,6 @@ def process_map(file_in, validate):
                     ways_writer.writerow(el['way'])
                     way_nodes_writer.writerows(el['way_nodes'])
                     way_tags_writer.writerows(el['way_tags'])
-
 
 if __name__ == '__main__':
     # Note: Validation is ~ 10X slower. For the project consider using a small
