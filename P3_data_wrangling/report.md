@@ -31,6 +31,8 @@ All city names are written differently by different users, they need to be synch
 delhi, DELHI, delhi. all need to be written as Delhi,
 noida, NOIDA all need to be written as Noida.
 
+
+```python
 mapping = {
     "Rd" : "Road",
     "delhi":"Delhi",
@@ -55,6 +57,7 @@ mapping = {
     "Pritampura" : "Pitampura"
 }
 
+...
 split_name = name.split(" ")
     new_name = []
     for split in split_name:
@@ -66,3 +69,33 @@ split_name = name.split(" ")
     name = " ".join(new_name)
     
 return name
+```
+###Inconsistent use of sector, in NCR region places are divided into sector numbers, they are written as "Sector <sector number>". ..
+But this pattern is written inconsistently across the dataset, 
+like sector-14 or Sec-14, sec14. I want to remove any hyphen between them and keep a single space between them. Like "Sector <Number>"
+Corrected code below
+
+```python
+sectorpattern = re.compile(r'\s*(Sector)\s*(-)\s*', re.IGNORECASE)
+sectorsubpattern1 = re.compile(r'(Sector-)\w*', re.IGNORECASE)
+sectorsubpattern2 = re.compile(r'(Sector)\s(-)\w*', re.IGNORECASE)
+sectorsubpattern3 = re.compile(r'(Sector)\s(-)\s\w*', re.IGNORECASE)
+sectorsubpattern4 = re.compile(r'(Sector-)\s\w*', re.IGNORECASE)
+sectorsubpattern5 = re.compile(r'(Sector)\s(-)\w*$', re.IGNORECASE)
+
+if re.search(sectorpattern, name):
+        if re.search(sectorsubpattern1, name):
+            name = name.replace("Sector-", "Sector ")
+        elif re.search(sectorsubpattern2, name):
+            name = name.replace("Sector -", "Sector ")
+        elif re.search(sectorsubpattern3, name):
+            name = name.replace("Sector - ", "Sector ")
+        elif re.search(sectorsubpattern5, name):
+            name = name.replace("Sector -", "Sector ")
+        else:
+            name = name.replace("Sector- ", "Sector ")
+
+...
+
+```            
+
