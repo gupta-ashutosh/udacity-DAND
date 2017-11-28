@@ -1,0 +1,9 @@
+P4 : Exploratory Data Analysis
+Final Project
+Submitted By : Ashutosh Gupta
+
+References Used : 
+1. For creating plots using ggplots : https://www.r-bloggers.com/how-to-make-a-histogram-with-ggplot2/
+2. http://www.harding.edu/fmccown/r/
+3. https://www.theguardian.com/science/2013/oct/25/science-magic-wine-making
+4. https://s3.amazonaws.com/udacity-hosted-downloads/ud651/GeographyOfAmericanMusic.html
