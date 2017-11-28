@@ -21,3 +21,18 @@
 * [README File](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/README.md)
 
 * [Report Link](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/report.md)
+
+
+## P4:Explore and Summarise Data
+**Apply exploratory data analysis techniques to explore relationships in one variable to multiple variables and to explore a selected data set for distributions, outliers, and anomalies..**
+
+* [README File](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P4_explore_and_summarize_data/README.md)
+
+* [Report Link](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P4_explore_and_summarize_data/p4_exploratory_data_analysis.Rmd)
+
+## P5:Fraud Detection in Enron Dataset
+**Detect person of interest i.e. probable poeple who might have committed the fruad. The dataset is limited and challenging and has to depend on feature scaling and extraction to achieve the required target**
+
+* [README File](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P5_intro_to_ML/README.md)
+
+* [Report Link](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P5_intro_to_ML/P5_POI_detection_final_report.pdf)
