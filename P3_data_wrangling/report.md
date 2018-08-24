@@ -21,7 +21,7 @@ The sample.osm is ~75MB in size.
 
 The way I perform the analysis task was :
 * Load the sample.osm data into python IDE rodeo by [yhat(newly launched)](https://www.yhat.com/products/rodeo) and analysed data manually line by line.
-* Use the [audit_streetname.py](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/audit_streetname.py) scipt to view the not so correct streetname. Also modified the aidit_streetname file such that small mistakes are corrected by audit file only(detailed of correction shared below).
+* Use the [audit_streetname.py](https://github.com/gupta-ashutosh/udacity-DAND/blob/master/P3_data_wrangling/audit_streetname.py) scipt to view the not so correct streetname. Also modified the audit_streetname file such that small mistakes are corrected by audit file only(detailed of correction shared below).
 
 ## Issued found during analysis of dataset##
 
