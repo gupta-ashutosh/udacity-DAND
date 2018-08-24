@@ -34,16 +34,12 @@ Also there is a regional term for market place, here we call it
 as _Bazaar_, but since this is originating in Hindi, which is native language in Delhi-NCR, varying and different spelling of 
 _Bazaar_ exists, like Bazar or Bzar I want to keep this as _Bazaar_.
 
-<<<<<<< HEAD
 
 ```python
 mapping = {
     "Rd" : "Road",
-=======
-```python
     #this is part of mapping array
     "up" :"UP",
->>>>>>> c1011bdfa23e349aaa7d503cb9a7a08a9ffa6a62
     "delhi":"Delhi",
     "Delhi.":"Delhi",
     "delhi": "Delhi",
@@ -62,7 +58,6 @@ for split in split_name:
         new_name.append(split)
 name = " ".join(new_name)
     
-<<<<<<< HEAD
 return name
 ```
 ###Inconsistent use of sector, in NCR region places are divided into sector numbers, they are written as "Sector <sector number>". ..
@@ -92,9 +87,6 @@ if re.search(sectorpattern, name):
 
 ...
 
-```            
-
-=======
 ```
 #### Inconsistent use of sector
 In NCR region places are divided into sector numbers, they are written as "Sector <sector number>"
